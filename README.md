@@ -12,4 +12,5 @@ Main repository for senior project code.
 
 ### Required libraries to build:  
 * libopencv-dev  
-
+* python-dev
+* wiringPi (Raspberry Pi builds only, http://wiringpi.com/download-and-install/)
