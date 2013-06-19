@@ -55,7 +55,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    ConfigManager::save();
+    ConfigManager::save();printf("%s\n", getenv("HOME"));
     
     // Start camera thread
     pthread_t* cameraThread = new pthread_t;
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     pthread_attr_init(cameraThreadAttr);
     pthread_create(cameraThread, cameraThreadAttr, cameraThreadMain, NULL);
     
-#if RASPI
+#ifdef RASPI
     initMagneto();
     initSonar(); 
     initPIR();
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
     while(1)
     {
-#if RASPI
+#ifdef RASPI
         readSonar();
         delay(100);
 #endif
