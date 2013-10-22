@@ -4,14 +4,14 @@ INCLUDES=-I include/
 LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc
 UNAME_P:=$(shell uname -p)
 ifneq ($(filter unknown,$(UNAME_P)),)
-	RASPIFLAGS=-L/usr/lib/uv4l/uv4lext/armv6l -luv4lext -Wl,-rpath,'/usr/lib/uv4l/uv4lext/armv6l'
+	RASPIFLAGS=#-L/usr/lib/uv4l/uv4lext/armv6l -luv4lext -Wl,-rpath,'/usr/lib/uv4l/uv4lext/armv6l'
 else
 	RASPIFLAGS=
 endif
 SOURCE_DIR=src
 SOURCES=main.cpp Camera.cpp DetectObject.cpp
 OBJECT_DIR=build
-OBJECTS=$(SOURCES:.cpp=.o)
+OBJECTS=(addsuffix .o, $(basename $(SOURCES)))
 EXECUTABLE_DIR=bin
 EXECUTABLE=VASC
 
