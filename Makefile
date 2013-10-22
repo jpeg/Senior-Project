@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++0x
 INCLUDES=-I include/
-LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc
+LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lwiringPi
 UNAME_P:=$(shell uname -p)
 ifneq ($(filter unknown,$(UNAME_P)),)
 	RASPIFLAGS=#-L/usr/lib/uv4l/uv4lext/armv6l -luv4lext -Wl,-rpath,'/usr/lib/uv4l/uv4lext/armv6l'
@@ -9,9 +9,9 @@ else
 	RASPIFLAGS=
 endif
 SOURCE_DIR=src
-SOURCES=main.cpp Camera.cpp DetectObject.cpp
+SOURCES=main.cpp Camera.cpp DetectObject.cpp magneto.c
 OBJECT_DIR=build
-OBJECTS=(addsuffix .o, $(basename $(SOURCES)))
+OBJECTS=$(addsuffix .o, $(basename $(SOURCES)))
 EXECUTABLE_DIR=bin
 EXECUTABLE=VASC
 
@@ -31,6 +31,10 @@ Camera.o: $(SOURCE_DIR)/Camera.cpp $(OBJECT_DIR)
 
 DetectObject.o: $(SOURCE_DIR)/DetectObject.cpp $(OBJECT_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $(OBJECT_DIR)/$@
+
+magneto.o: $(SOURCE_DIR)/magneto.c $(OBJECT_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $(OBJECT_DIR)/$@
+
 
 $(EXECUTABLE_DIR):
 	@mkdir $(EXECUTABLE_DIR)
