@@ -16,15 +16,42 @@ void* cameraThreadMain(void* arg);
 
 int main(int argc, char** argv)
 {
+    // Load config and parse config changes from command line args
     ConfigManager::init();
+    char argCmd = ' ';
+    for(int i=1; i<argc; i++)
+    {
+        std::string currentArg(argv[i]);
+        
+        if(currentArg[0] == '-' && currentArg.length() >= 2)
+        {
+            argCmd = currentArg[1];
+        }
+        else
+        {
+            switch(argCmd)
+            {
+            case 'e':
+                ConfigManager::emailRecipient = currentArg;
+                break;
+            case 'u':
+                ConfigManager::gmailUsername = currentArg;
+                break;
+            case 'p':
+                ConfigManager::gmailPassword = currentArg;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    ConfigManager::save();
     
     // Start camera thread
     pthread_t* cameraThread = new pthread_t;
     pthread_attr_t* cameraThreadAttr = new pthread_attr_t;
     pthread_attr_init(cameraThreadAttr);
     pthread_create(cameraThread, cameraThreadAttr, cameraThreadMain, NULL);
-    
-    ConfigManager::save();
     
     return 0;
 }

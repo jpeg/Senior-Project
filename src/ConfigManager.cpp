@@ -20,13 +20,12 @@ void ConfigManager::init()
     }
     
     // Assemble config filepath
-    char* pathSeperator = new char('/');
+    char pathSeperator = '/';
     std::string filepath(ConfigManager::homeDir);
-    filepath.append(pathSeperator);
+    filepath.push_back(pathSeperator);
     filepath.append(ConfigManager::configDir);
-    filepath.append(pathSeperator);
+    filepath.push_back(pathSeperator);
     filepath.append(ConfigManager::configFile);
-    delete pathSeperator;
     ConfigManager::configPath = filepath;
     
     // Load from config file
