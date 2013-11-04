@@ -9,12 +9,12 @@ else
 	RASPIFLAGS=
 endif
 SOURCE_DIR=src
-SOURCES=main.cpp Camera.cpp DetectObject.cpp EmailWrapper.cpp #magneto.c
+SOURCES=main.cpp ConfigManager.cpp Camera.cpp DetectObject.cpp EmailWrapper.cpp #magneto.c
 PYTHON_SOURCES=SendEmail.py
 OBJECT_DIR=build
 OBJECTS=$(addsuffix .o, $(basename $(SOURCES)))
 EXECUTABLE_DIR=bin
-EXECUTABLE=VASC
+EXECUTABLE=vasc
 
 all: $(OBJECTS) $(EXECUTABLE)
 
@@ -26,6 +26,9 @@ $(EXECUTABLE): $(OBJECTS) $(EXECUTABLE_DIR)
 	@cp $(addprefix $(SOURCE_DIR)/,$(PYTHON_SOURCES)) $(EXECUTABLE_DIR)
 
 main.o: $(SOURCE_DIR)/main.cpp $(OBJECT_DIR)
+	$(CC) $< $(CFLAGS) $(INCLUDES) -o $(OBJECT_DIR)/$@
+
+ConfigManager.o: $(SOURCE_DIR)/ConfigManager.cpp $(OBJECT_DIR)
 	$(CC) $< $(CFLAGS) $(INCLUDES) -o $(OBJECT_DIR)/$@
 
 Camera.o: $(SOURCE_DIR)/Camera.cpp $(OBJECT_DIR)
