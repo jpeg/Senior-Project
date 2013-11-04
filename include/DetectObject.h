@@ -17,10 +17,10 @@ private:
     static const int ROWS = IMAGE_HEIGHT / CELL_SIZE;
     static const int COLUMNS = IMAGE_WIDTH / CELL_SIZE;
     
-    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_HUE = 1.4f;
-    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_LIGHTNESS = 1.6f;
-    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_SATURATION = 1.6f;
-    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_GRAY = 1.3f;
+    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_HUE = 3.0f; //logitch: 3.0
+    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_LIGHTNESS = 0.0f; //currently not used
+    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_SATURATION = 1.0f; //logitech: 2.5
+    static constexpr float CONFIDENCE_LEVEL_STANDARD_DEVIATIONS_GRAY = 3.0f; //only works well with full spectrum camera
     
     static const int MIN_OBJECT_WIDTH = 5;
     static const int MIN_OBJECT_HEIGHT = 4;
