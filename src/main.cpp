@@ -11,6 +11,9 @@
 #include "Camera.h"
 #include "DetectObject.h"
 #include "EmailWrapper.h"
+#include "magneto.h"
+#include "sonar.h"
+#include "pir.h"
 
 void* cameraThreadMain(void* arg);
 
@@ -53,7 +56,17 @@ int main(int argc, char** argv)
     pthread_attr_init(cameraThreadAttr);
     pthread_create(cameraThread, cameraThreadAttr, cameraThreadMain, NULL);
     
-    return 0;
+
+    initMagneto();
+    initSonar(); 
+    initPIR();
+
+    while(1){
+    readSonar();
+    delay(100);
+    }
+
+  return 0;
 }
 
 void* cameraThreadMain(void* arg)
