@@ -1,5 +1,9 @@
 // main.cpp
 
+#if defined(__linux__) && defined(__arm__)
+#define RASPI
+#endif
+
 // Python.h must be included before anything else in our program
 #include <Python.h>
 
@@ -11,9 +15,12 @@
 #include "Camera.h"
 #include "DetectObject.h"
 #include "EmailWrapper.h"
+
+#ifdef RASPI
 #include "magneto.h"
 #include "sonar.h"
 #include "pir.h"
+#endif
 
 void* cameraThreadMain(void* arg);
 
@@ -56,14 +63,18 @@ int main(int argc, char** argv)
     pthread_attr_init(cameraThreadAttr);
     pthread_create(cameraThread, cameraThreadAttr, cameraThreadMain, NULL);
     
-
+#if RASPI
     initMagneto();
     initSonar(); 
     initPIR();
+#endif
 
-    while(1){
-    readSonar();
-    delay(100);
+    while(1)
+    {
+#if RASPI
+        readSonar();
+        delay(100);
+#endif
     }
 
   return 0;

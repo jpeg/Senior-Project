@@ -1,16 +1,17 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++0x
 INCLUDES=-Iinclude/ -I/usr/include/python2.7
-LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lpython2.7 -lwiringPi
+LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lpython2.7
 UNAME_P:=$(shell uname -p)
+SOURCE_DIR=src
+SOURCES=main.cpp ConfigManager.cpp Camera.cpp DetectObject.cpp EmailWrapper.cpp
+PYTHON_SOURCES=SendEmail.py
 ifneq ($(filter unknown,$(UNAME_P)),)
-	RASPIFLAGS=-L/usr/lib/uv4l/uv4lext/armv6l -luv4lext -Wl,-rpath,'/usr/lib/uv4l/uv4lext/armv6l'
+	RASPIFLAGS=-lwiringPi -L/usr/lib/uv4l/uv4lext/armv6l -luv4lext -Wl,-rpath,'/usr/lib/uv4l/uv4lext/armv6l'
+	SOURCES+=magneto.c sonar.c pir.c
 else
 	RASPIFLAGS=
 endif
-SOURCE_DIR=src
-SOURCES=main.cpp ConfigManager.cpp Camera.cpp DetectObject.cpp EmailWrapper.cpp magneto.c sonar.c pir.c
-PYTHON_SOURCES=SendEmail.py
 OBJECT_DIR=build
 OBJECTS=$(addsuffix .o, $(basename $(SOURCES)))
 EXECUTABLE_DIR=bin
@@ -48,7 +49,6 @@ sonar.o: $(SOURCE_DIR)/sonar.c $(OBJECT_DIR)
 
 pir.o: $(SOURCE_DIR)/pir.c $(OBJECT_DIR)
 	$(CC) $< $(CFLAGS) $(INCLUDES) -o $(OBJECT_DIR)/$@
-
 
 $(EXECUTABLE_DIR):
 	@mkdir $(EXECUTABLE_DIR)
