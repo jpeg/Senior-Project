@@ -55,7 +55,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    ConfigManager::save();printf("%s\n", getenv("HOME"));
+    ConfigManager::save();
     
     // Start camera thread
     pthread_t* cameraThread = new pthread_t;

@@ -25,12 +25,11 @@ void ConfigManager::init()
     filepath.push_back(pathSeperator);
     filepath.append(ConfigManager::configDir);
     filepath.push_back(pathSeperator);
-    filepath.append(ConfigManager::configFile);
     ConfigManager::configPath = filepath;
     
     // Load from config file
     std::fstream cfgFile;
-    cfgFile.open(ConfigManager::configPath, std::ios::in);
+    cfgFile.open(ConfigManager::configPath + ConfigManager::configFile, std::ios::in);
     while(cfgFile.good() && !cfgFile.eof())
     {
         std::string line;
@@ -68,9 +67,17 @@ void ConfigManager::init()
 
 void ConfigManager::save()
 {
+    // Make sure .vasc directory exists
+    DIR* dir = opendir(ConfigManager::configPath.c_str());
+    if(!dir)
+    {
+        mkdir(ConfigManager::configPath.c_str(), S_IRWXU);
+    }
+    closedir(dir);
+    
     // Save to config file
     std::fstream cfgFile;
-    cfgFile.open(ConfigManager::configPath, std::ios::out | std::ios::trunc);
+    cfgFile.open(ConfigManager::configPath + ConfigManager::configFile, std::ios::out | std::ios::trunc);
     if(cfgFile.good())
     {
         cfgFile << "emailRecipient:" << ConfigManager::emailRecipient << '\n';
