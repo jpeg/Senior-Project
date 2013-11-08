@@ -27,5 +27,6 @@ public:
     static std::string emailRecipient;
     static std::string gmailUsername;
     static std::string gmailPassword;
+    static int cameraTrainingDelay;
 } configManager_staticInstance;
 

@@ -23,6 +23,7 @@
 #endif
 
 void* cameraThreadMain(void* arg);
+pthread_mutex_t* cameraMutex;
 
 int main(int argc, char** argv)
 {
@@ -50,6 +51,8 @@ int main(int argc, char** argv)
             case 'p':
                 ConfigManager::gmailPassword = currentArg;
                 break;
+            case 't':
+                ConfigManager::cameraTrainingDelay = std::stoi(currentArg);
             default:
                 break;
             }
@@ -57,11 +60,19 @@ int main(int argc, char** argv)
     }
     ConfigManager::save();
     
+    // Init camera stuff
+    DetectObject* detectObject = new DetectObject();
+    detectObject->init();
+    
+    // Create camera mutex
+    pthread_mutexattr_t* cameraMutexAttr = new pthread_mutexattr_t;
+    pthread_mutexattr_init(cameraMutexAttr);
+    cameraMutex = new pthread_mutex_t;
+    pthread_mutex_init(cameraMutex, cameraMutexAttr);
+    
     // Start camera thread
     pthread_t* cameraThread = new pthread_t;
-    pthread_attr_t* cameraThreadAttr = new pthread_attr_t;
-    pthread_attr_init(cameraThreadAttr);
-    pthread_create(cameraThread, cameraThreadAttr, cameraThreadMain, NULL);
+    pthread_create(cameraThread, NULL, cameraThreadMain, detectObject);
     
 #ifdef RASPI
     initMagneto();
@@ -76,26 +87,41 @@ int main(int argc, char** argv)
         delay(100);
 #endif
     }
-
-  return 0;
+    
+    delete detectObject;
+    
+    return 0;
 }
 
 void* cameraThreadMain(void* arg)
 {
-    Camera* raspiCam = new Camera();
-    raspiCam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
-    
-    DetectObject* detectObject = new DetectObject();
-    detectObject->init();
-    
-    // Train object detection
-    detectObject->resetTrainingGray();
-    const int trainingFrames = 50;
-    for(int i=0; i<trainingFrames; i++)
+    if(arg == NULL)
     {
-        raspiCam->captureFrame();
-        detectObject->trainGray(raspiCam->getLastFrame());
+        return NULL;
     }
+    
+    Camera* cam = new Camera();
+    DetectObject* detectObject = (DetectObject*)arg;
+    
+    while(1)
+    {
+        // Train object detection
+        pthread_mutex_lock(cameraMutex);
+        detectObject->resetTrainingGray();
+        cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
+        const int trainingFrames = 50;
+        for(int i=0; i<trainingFrames; i++)
+        {
+            cam->captureFrame();
+            detectObject->trainGray(cam->getLastFrame());
+        }
+        cam->shutdown();
+        pthread_mutex_unlock(cameraMutex);
+        
+        sleep(60 * ConfigManager::cameraTrainingDelay);
+    }
+    
+    delete cam;
     
     return NULL;
 }

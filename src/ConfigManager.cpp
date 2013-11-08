@@ -9,6 +9,7 @@ std::string ConfigManager::configPath = "";
 std::string ConfigManager::emailRecipient = "";
 std::string ConfigManager::gmailUsername = "";
 std::string ConfigManager::gmailPassword = "";
+int ConfigManager::cameraTrainingDelay = 30;
 
 void ConfigManager::init()
 {
@@ -60,6 +61,10 @@ void ConfigManager::init()
             {
                 ConfigManager::gmailPassword = value;
             }
+            else if(var == "cameraTrainingDelay")
+            {
+                ConfigManager::cameraTrainingDelay = std::stoi(value);
+            }
         }
     }
     cfgFile.close();
@@ -83,6 +88,7 @@ void ConfigManager::save()
         cfgFile << "emailRecipient:" << ConfigManager::emailRecipient << '\n';
         cfgFile << "gmailUsername:" << ConfigManager::gmailUsername << '\n';
         cfgFile << "gmailPassword:" << ConfigManager::gmailPassword << '\n';
+        cfgFile << "cameraTrainingDelay:" << ConfigManager::cameraTrainingDelay << '\n';
     }
     cfgFile.close();
 }

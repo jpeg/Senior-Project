@@ -9,6 +9,7 @@ Main repository for senior project code.
 `-e` - Email address to send alerts to.  
 `-u` - Username for Gmail account to send alerts from.  
 `-p` - Password for Gmail account to send alerts from.  
+`-t` - How often to retrain the camera detection in minutes.
 
 ### Required libraries to build:  
 * libopencv-dev  
