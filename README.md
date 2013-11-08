@@ -10,6 +10,8 @@ Main repository for senior project code.
 `-u` - Username for Gmail account to send alerts from.  
 `-p` - Password for Gmail account to send alerts from.  
 `-t` - How often to retrain the camera detection in minutes.
+`-i` - Max number of images to save to disk.
+`-f` - Directory to save images.
 
 ### Required libraries to build:  
 * libopencv-dev  

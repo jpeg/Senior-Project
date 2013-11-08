@@ -10,6 +10,8 @@ std::string ConfigManager::emailRecipient = "";
 std::string ConfigManager::gmailUsername = "";
 std::string ConfigManager::gmailPassword = "";
 int ConfigManager::cameraTrainingDelay = 30;
+int ConfigManager::savedImages = 100;
+std::string ConfigManager::savePath = ""; //default set in init
 
 void ConfigManager::init()
 {
@@ -19,6 +21,10 @@ void ConfigManager::init()
     {
         ConfigManager::homeDir = new char('\0');
     }
+    
+    // Default set here instead as it requires getenv call
+    ConfigManager::savePath = getenv("HOME");
+    ConfigManager::savePath.append("/vasc_images/");
     
     // Assemble config filepath
     char pathSeperator = '/';
@@ -65,6 +71,14 @@ void ConfigManager::init()
             {
                 ConfigManager::cameraTrainingDelay = std::stoi(value);
             }
+            else if(var == "savedImages")
+            {
+                ConfigManager::savedImages = std::stoi(value);
+            }
+            else if(var == "savePath")
+            {
+                ConfigManager::savePath = value;
+            }
         }
     }
     cfgFile.close();
@@ -89,6 +103,8 @@ void ConfigManager::save()
         cfgFile << "gmailUsername:" << ConfigManager::gmailUsername << '\n';
         cfgFile << "gmailPassword:" << ConfigManager::gmailPassword << '\n';
         cfgFile << "cameraTrainingDelay:" << ConfigManager::cameraTrainingDelay << '\n';
+        cfgFile << "savedImages:" << ConfigManager::savedImages << '\n';
+        cfgFile << "savePath:" << ConfigManager::savePath << '\n';
     }
     cfgFile.close();
 }
