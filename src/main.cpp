@@ -87,9 +87,15 @@ int main(int argc, char** argv)
     initPIR();
 #endif
 
+    // Hack to get around weird OpenCV HighGUI error
+    if(getenv("DISPLAY") != NULL)
+    {
+        cv::namedWindow("Hack", CV_WINDOW_AUTOSIZE);
+    }
+    
     while(1)
     {
-        bool detected = false;
+        bool detected = true;
 #ifdef RASPI
         readSonar();
         delay(100);
@@ -107,15 +113,30 @@ int main(int argc, char** argv)
             cam->shutdown();
             pthread_mutex_unlock(cameraMutex);
             
-            if(cameraDetected)
+            if(true)//cameraDetected)
             {
                 printf("Camera detected vehicle!\n");
+                
+                // Make sure vasc_images directory exists
+                DIR* dir = opendir(ConfigManager::savePath.c_str());
+                if(!dir)
+                {
+                    mkdir(ConfigManager::savePath.c_str(), S_IRWXU | S_IXGRP | S_IRGRP | S_IXOTH | S_IROTH);
+                }
+                closedir(dir);
                 
                 // Save image to disk
                 std::stringstream filepath;
                 filepath << ConfigManager::savePath << imageCounter << ".jpg";
                 imageCounter = (imageCounter < ConfigManager::savedImages ? imageCounter+1 : 1);
-                cv::imwrite(filepath.str(), image);
+                if(cv::imwrite(filepath.str(), image))
+                {
+                    printf("Saved image %s\n", filepath.str().c_str());
+                }
+                else
+                {
+                    printf("Failed to save image.\n");
+                }
                 
                 // Send email alert
                 if(EmailWrapper::sendEmail(ConfigManager::emailRecipient, "VASC Email Alert!", "A vehicle was detected! See attached image.", 
