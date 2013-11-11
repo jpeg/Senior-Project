@@ -22,7 +22,7 @@
 #include "pir.h"
 #endif
 
-const int CAMERA_INIT_FRAMES = 10;
+const int CAMERA_INIT_FRAMES = 1;
 
 void* cameraThreadMain(void* arg);
 pthread_mutex_t* cameraMutex;
