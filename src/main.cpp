@@ -22,6 +22,8 @@
 #include "pir.h"
 #endif
 
+const int CAMERA_INIT_FRAMES = 10;
+
 void* cameraThreadMain(void* arg);
 pthread_mutex_t* cameraMutex;
 
@@ -77,6 +79,7 @@ int main(int argc, char** argv)
     // Start camera thread
     pthread_t* cameraThread = new pthread_t;
     pthread_create(cameraThread, NULL, cameraThreadMain, detectObject);
+    sleep(1);
     
     Camera* cam = new Camera;
     int imageCounter = 1;
@@ -107,13 +110,17 @@ int main(int argc, char** argv)
             
             pthread_mutex_lock(cameraMutex);
             cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
-            cam->captureFrame();
+            for(int i=0; i<CAMERA_INIT_FRAMES; i++)
+            {
+                // Need several frames for camera to init
+                cam->captureFrame();
+            }
             cv::Mat image = cam->getLastFrame();
             bool cameraDetected = detectObject->checkObjectGray(image);
             cam->shutdown();
             pthread_mutex_unlock(cameraMutex);
             
-            if(true)//cameraDetected)
+            if(cameraDetected)
             {
                 printf("Camera detected vehicle!\n");
                 
@@ -129,7 +136,10 @@ int main(int argc, char** argv)
                 std::stringstream filepath;
                 filepath << ConfigManager::savePath << imageCounter << ".jpg";
                 imageCounter = (imageCounter < ConfigManager::savedImages ? imageCounter+1 : 1);
-                if(cv::imwrite(filepath.str(), image))
+                std::vector<int> qualityType;
+                qualityType.push_back(CV_IMWRITE_JPEG_QUALITY);
+                qualityType.push_back(90);
+                if(cv::imwrite(filepath.str(), image, qualityType))
                 {
                     printf("Saved image %s\n", filepath.str().c_str());
                 }
@@ -177,6 +187,11 @@ void* cameraThreadMain(void* arg)
         pthread_mutex_lock(cameraMutex);
         detectObject->resetTrainingGray();
         cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
+        for(int i=0; i<CAMERA_INIT_FRAMES; i++)
+        {
+            // Need several frames for camera to init
+            cam->captureFrame();
+        }
         const int trainingFrames = 50;
         for(int i=0; i<trainingFrames; i++)
         {
