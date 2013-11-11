@@ -22,7 +22,7 @@
 #include "pir.h"
 #endif
 
-const int CAMERA_INIT_FRAMES = 1;
+const int CAMERA_INIT_FRAMES = 0;
 
 void* cameraThreadMain(void* arg);
 pthread_mutex_t* cameraMutex;
@@ -115,6 +115,7 @@ int main(int argc, char** argv)
                 // Need several frames for camera to init
                 cam->captureFrame();
             }
+            cam->captureFrame();
             cv::Mat image = cam->getLastFrame();
             bool cameraDetected = detectObject->checkObjectGray(image);
             cam->shutdown();
