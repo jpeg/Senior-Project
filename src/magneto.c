@@ -1,10 +1,12 @@
 #include "magneto.h"
 
 struct magnetometer_data mag;
-
+unsigned char mag_starting_up;
 
 void initMagneto(void){
-
+  int i;
+  pinMode(MAG_LED, OUTPUT);
+  printf("Magnetometer Initializing..........\n");
   if( (mag.fd = wiringPiI2CSetup(HMC5883L_I2C)) < 0 )
     printf ("I2C connection failed: %s\n", strerror(errno));
   
@@ -16,48 +18,121 @@ void initMagneto(void){
  
   if( (wiringPiI2CWriteReg8(mag.fd, HMC5883L_MODE_REG, CONTINUOUS)) < 0)
     printf ("Write to HMC5883L_MODE_REG failed: %s/n", strerror(errno));
-
+  mag_starting_up = 1;
   mag.x = 0;
   mag.y = 0;
   mag.z = 0;
   mag.average = 0;
   mag.deviation = 0;
   mag.magnitude = 0;
-  mag.count = 1;
-  // for(mag.i = 0 ; mag.i < 1000 ; mag.i++){
-  //   samples[mag.i]=0;
-  // }
-  // mag.i=0;
-
+  mag.oldest_sample = 0;
+  for(i = 0 ; i < MAX_SAMPLES ; i++){
+    readMagneto();
+    delay(15);
+  }
+  printf("Magnetometer Initialized...........\n");
+  updateMagneto();
+  mag_starting_up = 0;
 }
 
 
-void readMagneto(void) {
-  // int error = 0;
-  unsigned char xmsb, xlsb, ymsb, ylsb, zmsb, zlsb;
-  short x, y, z;
-  // int i;
+void readMagneto(void){
+  // Each field reading is stored in two separate bytes,
+  // most significan byte and least significant byte, that
+  // have to be combined to mean anything.
+
+  unsigned char xmsb, xlsb, ymsb, ylsb;
+  unsigned char zmsb, zlsb;
+  short x;
+  short y;
+  short z;
+
+  // Only concerned about the forward facing field.
+  // This should give the greatest sensitivity and
+  // awareness to the approaching vehicle.
+
   xmsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_XMSB);
   xlsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_XLSB); 
   ymsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_YMSB);
   ylsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_YLSB);
   zmsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_ZMSB);
   zlsb = wiringPiI2CReadReg8(mag.fd, HMC5883L_ZLSB);
-  //printf("X : %02x%02x    Y : %02x%02x    Z : %02x%02x\n", xmsb,xlsb,ymsb,ylsb,zmsb,zlsb);
+  //printf("X : %02x%02x    Y : %02x%02x    Z : %02x%02x\n"
+  //           ,xmsb,xlsb      ,ymsb,ylsb      ,zmsb,zlsb);
+
+  // This combines the two bytes
 
   x = ((xmsb << 8) & 0xff00) | (xlsb & 0x00ff);
+  mag.x = (int)x;
   y = ((ymsb << 8) & 0xff00) | (ylsb & 0x00ff);
+  mag.y = (int)y;
   z = ((zmsb << 8) & 0xff00) | (zlsb & 0x00ff);
-  mag.x = (int)x; mag.y = (int)y; mag.z = (int)z;
+  mag.z = (int)z;
+
   mag.magnitude = sqrt( (mag.x * mag.x) + (mag.y * mag.y) + (mag.z * mag.z) );
-  mag.average += (mag.magnitude - mag.average)/mag.count++;
   
+  // If we want more omnipresent awareness, we can let all axes contribute
+  // to the detection and pay attention to thier combined magnitude
+  // mag.magnitude = sqrt( (mag.x * mag.x) + (mag.y * mag.y) + (mag.z * mag.z) );
+  
+  // This is the old way of keeping a running average without storing
+  // any samples. The count could grow forever though and I gave up
+  // on this method.
+  // mag.average += (mag.magnitude - mag.average)/mag.count++;
+  if( !mag_starting_up){
+    printf("X: %4d    Y: %4d    Z: %4d    mag: %4d    old: %4d     ave: %4d     dev: %4d\n", 
+               mag.x,     mag.y,     mag.z,  mag.magnitude, mag.oldest_sample, mag.average, mag.deviation);
+  }
+  // printf("  Z: %4d     old: %4d\n\n", mag.z, mag.oldest_sample); 
 
-  printf("Xd: %4d    Yd: %4d    Zd: %4d    mag:%4d    ave: %4d\n\n", 
-             mag.x,     mag.y,      mag.z,  mag.magnitude, mag.average);
+  // Replace the oldest_sample taken with the current
+  if( mag_starting_up ){
+    mag.samples[mag.oldest_sample] = mag.magnitude;
+    mag.oldest_sample++;
+    mag.oldest_sample = mag.oldest_sample % MAX_SAMPLES;
+  }
+  else if( ( mag.low < mag.magnitude && mag.magnitude < mag.high ) ) {
+      mag.samples[mag.oldest_sample] = mag.magnitude;
+      mag.oldest_sample++;
+      mag.oldest_sample = mag.oldest_sample % MAX_SAMPLES;
+  }  
+}
 
-  // if(error < 0){
-  //   printf ("Reading magnetometer failed: %s\n", strerror(errno));
-    //return -1;
-  // }
+void updateMagneto(void) {
+  // It shouldn't be necessary to come up with a new average every time
+  // a reading is stored. This lets it be done less frequently than readings.
+  long sum = 0;
+  int difference = 0;
+  int i;
+  for( i = 0 ; i < MAX_SAMPLES ; i++ ){
+    sum += mag.samples[i];
+  }
+
+  mag.average = sum/MAX_SAMPLES;
+  sum = 0;
+
+  for( i = 0 ; i < MAX_SAMPLES ; i++ ){
+    difference = (mag.samples[i] - mag.average);
+    sum += difference*difference;
+  }
+
+  mag.deviation = sqrt(sum/MAX_SAMPLES);
+  mag.low  = mag.average - 2*mag.deviation - 5;
+  mag.high = 2*mag.deviation + mag.average + 5;
+
+  
+  // printf("X: %4d    Y: %4d    Z: %4d    mag: %4d    old: %4d     ave: %4d     dev: %4d                     **********************************\n", 
+  //            mag.x,     mag.y,     mag.z,  mag.magnitude, mag.oldest_sample, mag.average, mag.deviation);
+}
+
+int fieldDisruptionDetected(void){
+  readMagneto();
+  if( ( mag.magnitude < mag.low || mag.high < mag.magnitude ) ){
+    digitalWrite(MAG_LED, 1);
+    return 1;
+  }  
+  else{
+    digitalWrite(MAG_LED, 0);
+    return 0;
+  }
 }

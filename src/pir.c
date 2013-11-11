@@ -4,12 +4,20 @@
 
 void initPIR(void) {
   pinMode(PIR, INPUT);  
-  pinMode(MOTION_LED, OUTPUT);  
+  pinMode(MOTION_LED, OUTPUT);
 }
 
-void readPIR(void){ 
-  if (digitalRead(PIR))
-    digitalWrite(MOTION_LED, 1);  
-  else
-    digitalWrite(MOTION_LED, 0);  
+int motionDetected(void){
+  unsigned char moved;
+  moved = digitalRead(PIR);
+  if ( moved ){
+    digitalWrite(MOTION_LED, 1);
+    printf("MOTION_LED ON  **********************************************************\n");
+    return 1;
+  }
+  else {
+    digitalWrite(MOTION_LED, 0);
+    printf("MOTION_LED OFF\n");
+    return 0;
+  }
  }

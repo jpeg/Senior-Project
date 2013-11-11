@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
+#include <softPwm.h>
 #endif
 
 #ifndef HMC5883L_I2C
@@ -27,26 +28,31 @@
 #define LOW_FREQ 0x00           // 1 sample averaged, 0.75Hz
 #define CONTINUOUS 0x00         // Constantly reads and stores measurement
 
-//#define SENSOR_GAIN 0x00  // +/- 0.88 Ga
-#define SENSOR_GAIN 0x20  // +/- 1.3 Ga (default)
+#define SENSOR_GAIN 0x00  // +/- 0.88 Ga
+//#define SENSOR_GAIN 0x20  // +/- 1.3 Ga (default)
 //#define SENSOR_GAIN 0x40  // +/- 1.9 Ga
 //#define SENSOR_GAIN 0x60  // +/- 2.5 Ga
 //#define SENSOR_GAIN 0x80  // +/- 4.0 Ga
 //#define SENSOR_GAIN 0xA0  // +/- 4.7 Ga
 //#define SENSOR_GAIN 0xC0  // +/- 5.6 Ga
 //#define SENSOR_GAIN 0xE0  // +/- 8.1 Ga (not recommended)
-
+#define MAX_SAMPLES 250
+#define DEVIATION_MULTIPLIER
+#define MAG_LED 2
 
 struct magnetometer_data {
-  short fd, gain, i;
-  int x, y, z, average, deviation, magnitude;
- // int samples[1000];
-  long count;
+  short fd, gain;
+  int x, y, z, average, deviation, magnitude, low, high;
+  int samples[MAX_SAMPLES];
+  int oldest_sample;
 };
  
 extern struct magnetometer_data mag;
+extern unsigned char mag_starting_up;
 
 void initMagneto(void);
 void readMagneto(void);
+void updateMagneto(void);
+int fieldDisruptionDetected(void);
 
 #endif

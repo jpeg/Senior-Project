@@ -7,15 +7,16 @@
 #include <errno.h>
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
+#include <softPwm.h>
 #endif
 
 #ifndef PIR
 #define PIR 0
-#define MOTION_LED 3
+#define MOTION_LED 4
 
 //extern int motionDetected;
 
 void initPIR(void);
-void readPIR(void);
+int motionDetected(void);
 
 #endif

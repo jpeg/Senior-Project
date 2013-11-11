@@ -85,6 +85,10 @@ int main(int argc, char** argv)
     int imageCounter = 1;
     
 #ifdef RASPI
+    bool motion = false;
+    bool approach = false;
+    bool magnetified = false;
+    if(wiringPiSetup()){}
     initMagneto();
     initSonar(); 
     initPIR();
@@ -98,10 +102,14 @@ int main(int argc, char** argv)
     
     while(1)
     {
-        bool detected = true;
+        bool detected = false;
 #ifdef RASPI
-        readSonar();
-        delay(100);
+        motion = motionDetected();
+        approach = approachDetected();
+        magnetified = fieldDisruptionDetected();
+        detected = motion & approach & magnetified;
+        printf("magnetified: %d     approach: %d     motion: %d     detected: %d\n", magnetified, approach, motion, detected ); 
+        delay(50);
 #endif
         
         if(detected)
