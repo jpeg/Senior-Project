@@ -22,8 +22,6 @@
 #include "pir.h"
 #endif
 
-const int CAMERA_INIT_FRAMES = 0;
-
 void* cameraThreadMain(void* arg);
 pthread_mutex_t* cameraMutex;
 
@@ -59,6 +57,8 @@ int main(int argc, char** argv)
                 ConfigManager::savedImages = std::stoi(currentArg);
             case 'f':
                 ConfigManager::savePath = currentArg;
+            case 'c':
+                ConfigManager::initFrames = std::stoi(currentArg);
             default:
                 break;
             }
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
             
             pthread_mutex_lock(cameraMutex);
             cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
-            for(int i=0; i<CAMERA_INIT_FRAMES; i++)
+            for(int i=0; i<ConfigManager::initFrames; i++)
             {
                 // Need several frames for camera to init
                 cam->captureFrame();
@@ -188,7 +188,7 @@ void* cameraThreadMain(void* arg)
         pthread_mutex_lock(cameraMutex);
         detectObject->resetTrainingGray();
         cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
-        for(int i=0; i<CAMERA_INIT_FRAMES; i++)
+        for(int i=0; i<ConfigManager::initFrames; i++)
         {
             // Need several frames for camera to init
             cam->captureFrame();

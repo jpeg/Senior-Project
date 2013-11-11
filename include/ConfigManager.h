@@ -30,5 +30,6 @@ public:
     static int cameraTrainingDelay;
     static int savedImages;
     static std::string savePath;
+    static int initFrames;
 } configManager_staticInstance;
 

@@ -12,6 +12,7 @@ Main repository for senior project code.
 `-t` - How often to retrain the camera detection in minutes.  
 `-i` - Max number of images to save to disk.  
 `-f` - Directory to save images.  
+`-c` - Number of frames needed for camera to initialize, try changing this value if getting a black image.
 
 ### Required libraries to build:  
 * libopencv-dev  

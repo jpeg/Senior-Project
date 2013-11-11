@@ -12,6 +12,7 @@ std::string ConfigManager::gmailPassword = "";
 int ConfigManager::cameraTrainingDelay = 30;
 int ConfigManager::savedImages = 100;
 std::string ConfigManager::savePath = ""; //default set in init
+int ConfigManager::initFrames = 0;
 
 void ConfigManager::init()
 {
@@ -79,6 +80,10 @@ void ConfigManager::init()
             {
                 ConfigManager::savePath = value;
             }
+            else if(var == "initFrames")
+            {
+                ConfigManager::initFrames = std::stoi(value);
+            }
         }
     }
     cfgFile.close();
@@ -105,6 +110,7 @@ void ConfigManager::save()
         cfgFile << "cameraTrainingDelay:" << ConfigManager::cameraTrainingDelay << '\n';
         cfgFile << "savedImages:" << ConfigManager::savedImages << '\n';
         cfgFile << "savePath:" << ConfigManager::savePath << '\n';
+        cfgFile << "initFrames:" << ConfigManager::initFrames << '\n';
     }
     cfgFile.close();
 }
