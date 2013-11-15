@@ -12,7 +12,7 @@
 
 #ifndef PIR
 #define PIR 0
-#define MOTION_LED 4
+#define MOTION_LED 2
 
 //extern int motionDetected;
 

@@ -1,7 +1,8 @@
+// sonar.c
 #include "sonar.h"
 
 struct sonar_data sonar;
-unsigned char MIDDLE_POS, CLOSER_POS, ALMOST_POS;
+unsigned int MIDDLE_POS, CLOSER_POS, ALMOST_POS;
 unsigned char sonar_starting_up;
 
 void initSonar(void) {
@@ -31,7 +32,7 @@ void readSonar(void) {
     printf("\n\n\nWrite to MB1242_I2C failed: %s\n\n\n\n", strerror(errno));  
   
   // Have to wait 10-50ms after giving the cmd to range before data is ready
-  delay(60);
+  delay(70);
   
   // printf("range: %04x    sonar.range: %04x\n", range, sonar.range);
   // printf("range: %4d    sonar.range: %4d\n\n", range, sonar.range);  
@@ -47,8 +48,8 @@ void readSonar(void) {
   // printf("range: %04x    sonar.range: %04x\n", range, sonar.range);
   // printf("range: %4d    sonar.range: %4d\n\n", range, sonar.range);
   if(!sonar_starting_up){
-    printf("pos             [ %d ]            [ %d ]            [ %d ]            [ %d ]          last_pos: %d                               current_range:%3d\nNEAR_END: %3d   ALMOST_POS: %3d   MIDDLE_POS: %3d   CLOSER_POS: %3d   FAR_END: %3d                        infinity: %d\n",
-            sonar.pos[1], sonar.pos[2], sonar.pos[3], sonar.pos[4], sonar.last_pos, sonar.current_range, NEAR_END, ALMOST_POS, MIDDLE_POS, CLOSER_POS, FAR_END, sonar.infinity );
+    printf("\x1B[Kpos  %3d [  %d  ] %3d [  %d  ] %3d [  %d  ] %3d [ %d ] %3d     infinity: %3d     current_range:%3d\n",
+            NEAR_END, sonar.pos[1], ALMOST_POS, sonar.pos[2], MIDDLE_POS, sonar.pos[3], CLOSER_POS, sonar.pos[4], FAR_END, sonar.infinity, sonar.current_range);
   }
 }
 
@@ -106,7 +107,6 @@ int approachDetected(void) {
         softPwmWrite(SONAR_LED, 100);
         // All points passed and final region reached
         // return affirmative. object is approaching
-        return 1;
       }
     }
   }
@@ -120,7 +120,7 @@ int approachDetected(void) {
     softPwmWrite(SONAR_LED, 0);
   }
   // no confirmed object approaching
-  return 0;
+  return sonar.pos[1];
 }
 
 

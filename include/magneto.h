@@ -36,19 +36,20 @@
 //#define SENSOR_GAIN 0xA0  // +/- 4.7 Ga
 //#define SENSOR_GAIN 0xC0  // +/- 5.6 Ga
 //#define SENSOR_GAIN 0xE0  // +/- 8.1 Ga (not recommended)
-#define MAX_SAMPLES 250
-#define DEVIATION_MULTIPLIER
-#define MAG_LED 2
+#define MAX_SAMPLES 100
+#define DEVIATION_SENSITIVITY 1
+#define MAG_LED 4
+
 
 struct magnetometer_data {
   short fd, gain;
-  int x, y, z, average, deviation, magnitude, low, high;
+  int reading, average, deviation, magnitude, low, high, max, min;
   int samples[MAX_SAMPLES];
   int oldest_sample;
 };
  
 extern struct magnetometer_data mag;
-extern unsigned char mag_starting_up;
+extern unsigned char mag_starting_up, first_boot;
 
 void initMagneto(void);
 void readMagneto(void);

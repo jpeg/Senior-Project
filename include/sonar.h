@@ -19,7 +19,7 @@
 #define MB1242_ADDRESS_CMD2 0xA5   // Address change 
 #define TRAIN_SECONDS 5            // Seconds to get check for default distance
 #define NUM_REGIONS 5
-#define FAR_END 200
+#define FAR_END 150
 #define NEAR_END 50
 #define POS_4 ((sonar.current_range < FAR_END   ) && (sonar.current_range > CLOSER_POS))
 #define POS_3 ((sonar.current_range < CLOSER_POS) && (sonar.current_range > MIDDLE_POS))
@@ -43,7 +43,7 @@ struct sonar_data {
 };
  
 extern struct sonar_data sonar;
-extern unsigned char MIDDLE_POS, CLOSER_POS, ALMOST_POS;
+extern unsigned int MIDDLE_POS, CLOSER_POS, ALMOST_POS;
 extern unsigned char sonar_starting_up;
 
 void initSonar(void);
