@@ -104,11 +104,11 @@ int main(int argc, char** argv)
     {
         bool detected = false;
 #ifdef RASPI
-        motion = motionDetected();
-        approach = approachDetected();
         magnetified = fieldDisruptionDetected();
+        approach = approachDetected();
+        motion = motionDetected();
         detected = motion & approach & magnetified;
-        printf("magnetified: %d     approach: %d     motion: %d     detected: %d\n", magnetified, approach, motion, detected ); 
+        printf("\x1B[Kmagnetified: %d     approach: %d     motion: %d     detected: %d\n", magnetified, approach, motion, detected ); 
         delay(50);
 #endif
         
@@ -161,16 +161,18 @@ int main(int argc, char** argv)
                 if(EmailWrapper::sendEmail(ConfigManager::emailRecipient, "VASC Email Alert!", "A vehicle was detected! See attached image.", 
                              ConfigManager::gmailUsername, ConfigManager::gmailPassword, filepath.str()))
                 {
-                    printf("Sent email alert!\n");
+                    printf("Sent email alert!\n\n\n\n");
                 }
                 else
                 {
-                    printf("ERROR: Failed to send email alert.\n");
+                    printf("ERROR: Failed to send email alert.\n\n\n\n");
                 }
+                delay(2000);
             }
             else
             {
-                printf("Camera did not detect a vehicle.\n");
+                printf("Camera did not detect a vehicle.\n\n\n\n");
+                delay(2000);
             }
         }
     }
