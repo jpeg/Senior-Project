@@ -48,7 +48,7 @@ void readSonar(void) {
   // printf("range: %04x    sonar.range: %04x\n", range, sonar.range);
   // printf("range: %4d    sonar.range: %4d\n\n", range, sonar.range);
   if(!sonar_starting_up){
-    printf("\x1B[Kpos  %3d [  %d  ] %3d [  %d  ] %3d [  %d  ] %3d [ %d ] %3d     infinity: %3d     current_range:%3d\n",
+    printf("\x1B[Kpos  %3d [  %d  ] %3d [  %d  ] %3d [  %d  ] %3d [ %d ] %3d     farthest_distance: %3d     current_range:%3d\n",
             NEAR_END, sonar.pos[1], ALMOST_POS, sonar.pos[2], MIDDLE_POS, sonar.pos[3], CLOSER_POS, sonar.pos[4], FAR_END, sonar.infinity, sonar.current_range);
   }
 }

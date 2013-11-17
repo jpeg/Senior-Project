@@ -89,7 +89,7 @@ void readMagneto(void){
     // printf("X: %4d    Y: %4d    Z: %4d    mag: %4d    old: %4d     ave: %4d     dev: %4d\n", 
     //            mag.x,     mag.y,     mag.z,  mag.magnitude, mag.oldest_sample, mag.average, mag.deviation);
   
-    printf("\x1B[K\x1B[3Areading: %4d     old: %4d     ave: %4d     dev: %4d     min: %3d     max: %3d\n",
+    printf("\x1B[K\x1B[3Amag_reading: %4d     oldest_sample: %4d     ave: %4d     dev: %4d     min: %3d     max: %3d\n",
                 mag.reading, mag.oldest_sample, mag.average, mag.deviation, mag.min, mag.max); 
   }
   // Replace the oldest_sample taken with the current
@@ -144,6 +144,7 @@ void updateMagneto(void) {
 
 int fieldDisruptionDetected(void){
   readMagneto();
+  delay(1);
   if( ( mag.low < mag.reading && mag.reading < mag.high ) ){
     digitalWrite(MAG_LED, 0);
     return 0;

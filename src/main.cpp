@@ -89,9 +89,11 @@ int main(int argc, char** argv)
     bool approach = false;
     bool magnetified = false;
     if(wiringPiSetup()){}
+    system("clear");
     initMagneto();
     initSonar(); 
     initPIR();
+    printf("Initialization Complete...........\n\n\n\n");
 #endif
 
     // Hack to get around weird OpenCV HighGUI error
@@ -99,11 +101,13 @@ int main(int argc, char** argv)
     {
         cv::namedWindow("Hack", CV_WINDOW_AUTOSIZE);
     }
+
     
     while(1)
     {
         bool detected = false;
 #ifdef RASPI
+        
         magnetified = fieldDisruptionDetected();
         approach = approachDetected();
         motion = motionDetected();
@@ -151,6 +155,7 @@ int main(int argc, char** argv)
                 if(cv::imwrite(filepath.str(), image, qualityType))
                 {
                     printf("Saved image %s\n", filepath.str().c_str());
+                    printf("Sending email alert...\n");
                 }
                 else
                 {
@@ -161,19 +166,19 @@ int main(int argc, char** argv)
                 if(EmailWrapper::sendEmail(ConfigManager::emailRecipient, "VASC Email Alert!", "A vehicle was detected! See attached image.", 
                              ConfigManager::gmailUsername, ConfigManager::gmailPassword, filepath.str()))
                 {
-                    printf("Sent email alert!\n\n\n\n");
+                    printf("Sent email alert!\n");
                 }
                 else
                 {
-                    printf("ERROR: Failed to send email alert.\n\n\n\n");
+                    printf("ERROR: Failed to send email alert.\n");
                 }
-                delay(2000);
             }
             else
             {
-                printf("Camera did not detect a vehicle.\n\n\n\n");
-                delay(2000);
+                printf("Camera did not detect a vehicle.\n");
             }
+            printf("Resuming detection in 10 seconds...\n\n\n\n");
+            delay(10000);
         }
     }
     

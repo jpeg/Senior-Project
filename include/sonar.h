@@ -19,14 +19,14 @@
 #define MB1242_ADDRESS_CMD2 0xA5   // Address change 
 #define TRAIN_SECONDS 5            // Seconds to get check for default distance
 #define NUM_REGIONS 5
-#define FAR_END 150
-#define NEAR_END 50
+#define FAR_END 500
+#define NEAR_END 200
 #define POS_4 ((sonar.current_range < FAR_END   ) && (sonar.current_range > CLOSER_POS))
 #define POS_3 ((sonar.current_range < CLOSER_POS) && (sonar.current_range > MIDDLE_POS))
 #define POS_2 ((sonar.current_range < MIDDLE_POS) && (sonar.current_range > ALMOST_POS))
 #define POS_1 ((sonar.current_range < ALMOST_POS) && (sonar.current_range > NEAR_END  ))
 #define TRUE 1
-#define SONAR_LED 3
+#define SONAR_LED 6
 /*
 
            NEAR      ALMOST        MIDDLE      CLOSER       FAR

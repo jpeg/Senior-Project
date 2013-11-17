@@ -38,7 +38,7 @@
 //#define SENSOR_GAIN 0xE0  // +/- 8.1 Ga (not recommended)
 #define MAX_SAMPLES 100
 #define DEVIATION_SENSITIVITY 1
-#define MAG_LED 4
+#define MAG_LED 7
 
 
 struct magnetometer_data {

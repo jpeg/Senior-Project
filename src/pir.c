@@ -2,9 +2,6 @@
 
 #include "pir.h"
 
-
-//int motionDetected;
-
 void initPIR(void) {
   pinMode(PIR, INPUT);  
   pinMode(MOTION_LED, OUTPUT);
@@ -13,6 +10,7 @@ void initPIR(void) {
 int motionDetected(void){
   unsigned char moved;
   moved = digitalRead(PIR);
+  delay(1);
   digitalWrite(MOTION_LED, moved);
   return moved;
  }
