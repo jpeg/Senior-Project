@@ -31,7 +31,7 @@ public:
     
     // Methods
 public:
-    bool init(int width, int height);
+    bool init();
     void shutdown();
     bool captureFrame();
     float getFPS();

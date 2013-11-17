@@ -19,6 +19,7 @@ void DetectObject::init()
 void DetectObject::trainHLS(cv::Mat image)
 {
     cv::Mat imageHLS;
+    cv::resize(image, imageHLS, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
     cv::cvtColor(image, imageHLS, CV_BGR2HLS);
     
     this->trainingHistoryLengthHLS++;
@@ -61,7 +62,8 @@ void DetectObject::trainHLS(cv::Mat image)
 void DetectObject::trainGray(cv::Mat image)
 {
     cv::Mat imageGray;
-    cv::cvtColor(image, imageGray, CV_BGR2GRAY);
+    cv::resize(image, imageGray, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+    cv::cvtColor(imageGray, imageGray, CV_BGR2GRAY);
     cv::equalizeHist(imageGray,imageGray);
     
     this->trainingHistoryLengthGray++;
@@ -105,6 +107,7 @@ void DetectObject::resetTrainingGray()
 bool DetectObject::checkObjectHLS(cv::Mat image)
 {
     cv::Mat imageHLS;
+    cv::resize(image, image, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
     cv::cvtColor(image, imageHLS, CV_BGR2HLS);
     
     this->updateImageResultsHLS(&imageHLS, &image);
@@ -115,7 +118,8 @@ bool DetectObject::checkObjectHLS(cv::Mat image)
 bool DetectObject::checkObjectGray(cv::Mat image)
 {
     cv::Mat imageGray;
-    cv::cvtColor(image, imageGray, CV_BGR2GRAY);
+    cv::resize(image, imageGray, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+    cv::cvtColor(imageGray, imageGray, CV_BGR2GRAY);
     cv::equalizeHist(imageGray, imageGray);
     
     this->updateImageResultsGray(&imageGray);
@@ -167,9 +171,11 @@ bool DetectObject::checkObjectSize()
 
 cv::Mat DetectObject::generateDebugImage(cv::Mat inputImage)
 {
+    int cellSize = CELL_SIZE * (inputImage.size().width / IMAGE_WIDTH);
+    
     cv::Mat debugImage(inputImage.size(), inputImage.type());
-    cv::Mat change(cv::Size(CELL_SIZE, CELL_SIZE), inputImage.type());
-    cv::Mat noChange(cv::Size(CELL_SIZE, CELL_SIZE), inputImage.type());
+    cv::Mat change(cv::Size(cellSize, cellSize), inputImage.type());
+    cv::Mat noChange(cv::Size(cellSize, cellSize), inputImage.type());
     change = cv::Scalar(0.0f, 0.0f, 80.0f);   // red
     noChange = cv::Scalar(0.0f, 80.0f, 0.0f); // green
     
@@ -177,7 +183,7 @@ cv::Mat DetectObject::generateDebugImage(cv::Mat inputImage)
     {
         for(int column=0; column<COLUMNS; column++)
         {
-            cv::Rect cellRect(column*CELL_SIZE, row*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            cv::Rect cellRect(column*cellSize, row*cellSize, cellSize, cellSize);
             cv::Mat cellInputImage(inputImage, cellRect);
             cv::Mat cellDebugImage(debugImage, cellRect);
             

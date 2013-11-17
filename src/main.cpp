@@ -105,9 +105,9 @@ int main(int argc, char** argv)
     
     while(1)
     {
-        bool detected = false;
-#ifdef RASPI
+        bool detected = true;
         
+#ifdef RASPI
         magnetified = fieldDisruptionDetected();
         approach = approachDetected();
         motion = motionDetected();
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
             printf("Sensors detected vehicle!\n");
             
             pthread_mutex_lock(cameraMutex);
-            cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
+            cam->init();
             for(int i=0; i<ConfigManager::initFrames; i++)
             {
                 // Need several frames for camera to init
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
                 printf("Camera did not detect a vehicle.\n");
             }
             printf("Resuming detection in 10 seconds...\n\n\n\n");
-            delay(10000);
+            sleep(10);
         }
     }
     
@@ -202,7 +202,7 @@ void* cameraThreadMain(void* arg)
         // Train object detection
         pthread_mutex_lock(cameraMutex);
         detectObject->resetTrainingGray();
-        cam->init(DetectObject::IMAGE_WIDTH, DetectObject::IMAGE_HEIGHT);
+        cam->init();
         for(int i=0; i<ConfigManager::initFrames; i++)
         {
             // Need several frames for camera to init
