@@ -25,6 +25,8 @@
 void* cameraThreadMain(void* arg);
 pthread_mutex_t* cameraMutex;
 
+void* emailThreadMain(void* arg);
+
 int main(int argc, char** argv)
 {
     // Load config and parse config changes from command line args
@@ -105,7 +107,7 @@ int main(int argc, char** argv)
     
     while(1)
     {
-        bool detected = true;
+        bool detected = false;
         
 #ifdef RASPI
         magnetified = fieldDisruptionDetected();
@@ -163,15 +165,9 @@ int main(int argc, char** argv)
                 }
                 
                 // Send email alert
-                if(EmailWrapper::sendEmail(ConfigManager::emailRecipient, "VASC Email Alert!", "A vehicle was detected! See attached image.", 
-                             ConfigManager::gmailUsername, ConfigManager::gmailPassword, filepath.str()))
-                {
-                    printf("Sent email alert!\n");
-                }
-                else
-                {
-                    printf("ERROR: Failed to send email alert.\n");
-                }
+                std::string* fp = new std::string(filepath.str());
+                pthread_t emailThread;
+                pthread_create(&emailThread, NULL, emailThreadMain, fp);
             }
             else
             {
@@ -221,6 +217,31 @@ void* cameraThreadMain(void* arg)
     }
     
     delete cam;
+    
+    return NULL;
+}
+
+void* emailThreadMain(void* arg)
+{
+    std::string* attachment;
+    if(arg == NULL)
+    {
+        attachment = new std::string("");
+    }
+    else
+    {
+        attachment = (std::string*)arg;
+    }
+    
+    if(EmailWrapper::sendEmail(ConfigManager::emailRecipient, "VASC Email Alert!", "A vehicle was detected! See attached image.", 
+            ConfigManager::gmailUsername, ConfigManager::gmailPassword, *attachment))
+    {
+        printf("Sent email alert!\n");
+    }
+    else
+    {
+        printf("ERROR: Failed to send email alert.\n");
+    }
     
     return NULL;
 }
